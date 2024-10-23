@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 // Custom dictionary for spell-checking
 const customDictionary = {
@@ -9,45 +9,55 @@ const customDictionary = {
 };
 
 const XSpellCheck = () => {
-  const [text, setText] = useState("");
+  // State to store the user's input and the current suggestion
+  const [inputText, setInputText] = useState("");
   const [suggestion, setSuggestion] = useState("");
 
-  const checkSpelling = (inputText) => {
-    const words = inputText.split(" ");
-
-    for (const word of words) {
-      const lowerWord = word.toLowerCase();
-      if (customDictionary[lowerWord]) {
-        return `Did you mean: ${customDictionary[lowerWord]}?`;
-      }
-    }
-    return "";
+  // Function to handle input changes and update the suggestion
+  const handleInputChange = (event) => {
+    const userInput = event.target.value;
+    setInputText(userInput);
+    checkSpelling(userInput);
   };
 
-  useEffect(() => {
-    if (text.trim() === "") {
-      setSuggestion("");
-    } else {
-      const foundSuggestion = checkSpelling(text);
-      setSuggestion(foundSuggestion);
-    }
-  }, [text]);
+  // Function to check for spelling mistakes based on custom dictionary
+  const checkSpelling = (text) => {
+    // Convert input to lowercase and split it into words
+    const words = text.toLowerCase().split(" ");
 
-  const handleChange = (event) => {
-    setText(event.target.value);
+    // Find the first misspelled word in the input
+    for (let word of words) {
+      if (customDictionary[word]) {
+        // If the word is found in the dictionary, show the correction suggestion
+        setSuggestion(`Did you mean: ${customDictionary[word]}?`);
+        return; // Stop checking after the first misspelled word
+      }
+    }
+
+    // If no misspelled word is found, clear the suggestion
+    setSuggestion("");
   };
 
   return (
-    <div>
-      <h1>Spell Check and Auto-Correction</h1>
+    <div style={{ margin: "20px" }}>
+      <h1>XSpellCheck</h1>
+
+      {/* Textarea for user input */}
       <textarea
-        value={text}
-        onChange={handleChange}
-        placeholder="Enter text..."
-        rows={10}
-        cols={50}
+        rows="4"
+        cols="50"
+        placeholder="Type something..."
+        value={inputText}
+        onChange={handleInputChange}
+        style={{ padding: "10px", fontSize: "16px", width: "100%" }}
       />
-      {suggestion && <p>{suggestion}</p>}
+
+      {/* Suggestion section */}
+      {suggestion && (
+        <div style={{ marginTop: "10px", color: "red", fontWeight: "bold" }}>
+          {suggestion}
+        </div>
+      )}
     </div>
   );
 };
